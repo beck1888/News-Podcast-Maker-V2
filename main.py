@@ -4,6 +4,9 @@ from apis.text_gen import was_scraped_successfully, gen_podcast_segment, compile
 from apis.create_audio import gen_speech
 from tools.environment_manager import get_environmental_variable
 from tools.terminal import spinner
+from pydub import AudioSegment
+from datetime import datetime
+import os
 
 def main() -> None:
     # Load in API keys
@@ -62,7 +65,45 @@ def main() -> None:
                 use_voice = 'onyx'
             audio_files.append(gen_speech(segment, openai_api_key, voice=use_voice))
     print(audio_files)
-
+    
+    # Stitch and mix audio
+    def load_audio(filename: str) -> AudioSegment:
+        return AudioSegment.from_file(filename)
+    
+    def overlay_music_with_fade(voice: AudioSegment, music: AudioSegment) -> AudioSegment:
+        # Make music quieter and apply fade
+        music = music - 20  # lower volume
+        result = AudioSegment.silent(duration=0)
+        while len(result) < len(voice):
+            loop = music.fade_in(2000).fade_out(2000)
+            result += loop
+        return voice.overlay(result[:len(voice)])
+    
+    def stitch_audio_files(file_paths: list[str]) -> AudioSegment:
+        combined = AudioSegment.empty()
+        for path in file_paths:
+            combined += load_audio(path)
+        return combined
+    
+    def export_final_podcast(audio_files: list[str]) -> None:
+        stitched_voice = stitch_audio_files(audio_files)
+        music = load_audio("public/music.mp3")
+        voice_with_music = overlay_music_with_fade(stitched_voice, music)
+    
+        final_mix = AudioSegment.empty()
+        final_mix += load_audio("public/ai_notice.mp3")
+        final_mix += AudioSegment.silent(duration=1000)
+        final_mix += load_audio("public/intro.mp3")
+        final_mix += voice_with_music
+        final_mix += load_audio("public/outro.mp3")
+    
+        timestamp = datetime.now().strftime("%B %d at %I%p - %Y")
+        output_path = os.path.join("podcasts", f"{timestamp}.mp3")
+        os.makedirs("podcasts", exist_ok=True)
+        final_mix.export(output_path, format="mp3")
+        print(f"[INFO] Podcast exported to {output_path}")
+    
+    export_final_podcast(audio_files)
 
 if __name__ == '__main__':
     main()
