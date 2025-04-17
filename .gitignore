@@ -133,3 +133,7 @@ env/
 ENV/
 .venv/
 .env/
+
+# Program folders
+tmp/
+podcasts/

@@ -3,12 +3,23 @@ from apis.scrape import scrape_page
 from apis.text_gen import was_scraped_successfully, gen_podcast_segment, compile_podcast_script, parse_script
 from apis.create_audio import gen_speech
 from tools.environment_manager import get_environmental_variable
-from tools.terminal import spinner
+from tools.terminal import spinner, await_press_enter
 from pydub import AudioSegment
+from playsound import playsound
 from datetime import datetime
+import time
 import os
 
 def main() -> None:
+    # Await user input to start
+    await_press_enter()
+
+    # Track start time
+    start = time.time()
+
+    # Play music while generating podcast
+    playsound('public/gen_wait_music.mp3', block=False) # Do not hold program execution for music - it's backgroudn music for a reason
+
     # Load in API keys
     with spinner('Setting up environment'):
         news_api_key: str = get_environmental_variable('NEWSAPI_API_KEY')
@@ -101,9 +112,19 @@ def main() -> None:
         output_path = os.path.join("podcasts", f"{timestamp}.mp3")
         os.makedirs("podcasts", exist_ok=True)
         final_mix.export(output_path, format="mp3")
-        print(f"[INFO] Podcast exported to {output_path}")
+        return f"[SUCSESS] Podcast exported to {output_path}"
     
-    export_final_podcast(audio_files)
+    with spinner('Creating final audio file'):
+        complete_message: str = export_final_podcast(audio_files)
+
+    print(complete_message)
+
+    end = time.time()
+
+    elapsed_time = end - start
+
+    minutes, seconds = divmod(round(elapsed_time), 60)
+    print(f"Elapsed time: {minutes} minutes and {seconds} seconds.")
 
 if __name__ == '__main__':
     main()

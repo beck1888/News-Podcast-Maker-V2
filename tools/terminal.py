@@ -80,7 +80,7 @@ def clear() -> None:
 
 def await_press_enter() -> None:
     """Wait for the user to press Enter, exit if any other input is received."""
-    if input("Press Enter to continue...") != "":
+    if input("Press Enter to start...") != "":
         sys.exit(0)
 
 
