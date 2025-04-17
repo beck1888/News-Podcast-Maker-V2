@@ -83,7 +83,7 @@ def compile_podcast_script(content: list[str], api_key: str) -> str:
             },
             {
                 'role': 'user',
-                'content': f'Here is extra info to include in your response: It is {formatted_date}. The name of the podcast is "The Rundown". Your name is "Coral".'
+                'content': f'Here is extra info to include in your response: It is {formatted_date}. The name of the podcast is "The Rundown".'
             }
         ]
     ).choices[0].message.content

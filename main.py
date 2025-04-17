@@ -12,13 +12,21 @@ import os
 
 def main() -> None:
     # Await user input to start
-    await_press_enter()
+    do_music_while_gen: bool = input("Play music while podcast is generating? ") == 'y'
 
     # Track start time
     start = time.time()
 
     # Play music while generating podcast
-    playsound('public/gen_wait_music.mp3', block=False) # Do not hold program execution for music - it's backgroudn music for a reason
+    if do_music_while_gen:
+        playsound('public/gen_wait_music.mp3', block=False) # Do not hold program execution for music - it's backgroudn music for a reason
+
+    # Setup workspace
+    with spinner('Setting up workspace'):
+        # Ensure the 'tmp' folder exists
+        os.makedirs('tmp', exist_ok=True)
+        # Ensure the 'podcasts' folder exists
+        os.makedirs('podcasts', exist_ok=True)
 
     # Load in API keys
     with spinner('Setting up environment'):
@@ -51,7 +59,7 @@ def main() -> None:
                 final_news.append(f'Headline: {headline.upper()} ---- Article body: {story}')
         # print(f"Scrape sucsess? {str(is_scrape_sucsessful)}")
     final_story_count: int = len(final_news)
-    print(f"[INFO] {str(final_story_count)} of 5 stories are avaliable.")
+    # print(f"[INFO] {str(final_story_count)} of 5 stories are avaliable.")
     
     # Write stories like proper articles segment-by-segment
     podcast_segments: list[str] = []
@@ -75,7 +83,7 @@ def main() -> None:
             else:
                 use_voice = 'onyx'
             audio_files.append(gen_speech(segment, openai_api_key, voice=use_voice))
-    print(audio_files)
+    # print(audio_files)
     
     # Stitch and mix audio
     def load_audio(filename: str) -> AudioSegment:
@@ -112,19 +120,24 @@ def main() -> None:
         output_path = os.path.join("podcasts", f"{timestamp}.mp3")
         os.makedirs("podcasts", exist_ok=True)
         final_mix.export(output_path, format="mp3")
-        return f"[SUCSESS] Podcast exported to {output_path}"
+        return f" [OKAY] Podcast exported to {output_path}"
     
     with spinner('Creating final audio file'):
         complete_message: str = export_final_podcast(audio_files)
 
-    print(complete_message)
+    with spinner('Cleaning up from run'):
+        for file in os.listdir('tmp'):
+            file_path = os.path.join('tmp', file)
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                os.rmdir(file_path)
 
     end = time.time()
-
     elapsed_time = end - start
-
     minutes, seconds = divmod(round(elapsed_time), 60)
-    print(f"Elapsed time: {minutes} minutes and {seconds} seconds.")
+    print(f" [INFO] Elapsed time: {minutes} minutes and {seconds} seconds.")
+    print(complete_message)
 
 if __name__ == '__main__':
     main()
