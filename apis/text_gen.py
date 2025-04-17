@@ -92,6 +92,6 @@ def compile_podcast_script(content: list[str], api_key: str) -> str:
 
 def parse_script(script: str) -> list[str]:
     parts: list[str] = []
-    for chunk in script.split('\n\n'): # Split on new paragraph
+    for chunk in script.split('<SWITCH>'): # Split on new switch tag
         parts.append(chunk)
     return parts
