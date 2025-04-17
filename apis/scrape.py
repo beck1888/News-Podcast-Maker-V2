@@ -29,7 +29,7 @@ def scrape_page(url: str):
     # Run the full process
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     screenshot_file = f"screenshot_{timestamp}.png"
-    print(f"Screenshot saved to {screenshot_file}")
+    # print(f"Screenshot saved to {screenshot_file}")
     capture_fullpage_screenshot(url, screenshot_file)
     text = extract_text_from_image(screenshot_file)
     try:
