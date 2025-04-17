@@ -119,7 +119,7 @@ def main() -> None:
         output_path = os.path.join("podcasts", f"{timestamp}.mp3")
         os.makedirs("podcasts", exist_ok=True)
         final_mix.export(output_path, format="mp3")
-        return f" [OKAY] Podcast exported to {output_path}"
+        return f"  [OKAY] Podcast exported to {output_path}"
     
     with spinner('Creating final audio file'):
         complete_message: str = export_final_podcast(audio_files)
@@ -135,7 +135,7 @@ def main() -> None:
     end = time.time()
     elapsed_time = end - start
     minutes, seconds = divmod(round(elapsed_time), 60)
-    print(f" [INFO] Elapsed time: {minutes} minutes and {seconds} seconds.")
+    print(f"  [INFO] Done. Elapsed time: {minutes} minutes and {seconds} seconds.")
     print(complete_message)
 
 if __name__ == '__main__':
