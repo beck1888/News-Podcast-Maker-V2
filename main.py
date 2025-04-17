@@ -1,6 +1,6 @@
 from apis.fetch_news import get_top_stories
 from apis.scrape import scrape_page
-from apis.text_gen import was_scraped_successfully
+from apis.text_gen import was_scraped_successfully, gen_podcast_segment
 from tools.environment_manager import get_environmental_variable
 from tools.terminal import spinner
 
@@ -34,11 +34,16 @@ def main() -> None:
             is_scrape_sucsessful: bool = was_scraped_successfully(story, openai_api_key)
             if is_scrape_sucsessful:
                 final_news.append(f'Headline: {headline.upper()} ---- Article body: {story}')
-        print(f"Scrape sucsess? {str(is_scrape_sucsessful)}")
+        # print(f"Scrape sucsess? {str(is_scrape_sucsessful)}")
+    final_story_count: int = len(final_news)
+    print(f"[INFO] {str(final_story_count)} of 5 stories are avaliable.")
     
-    print(f"Final amount of sucsessfully collected stories: {str(len(final_news))}")
-    print('\n'*10)
-    print(final_news)
+    # Write stories like proper articles
+    podcast_segments: list[str] = []
+    for i in range(final_story_count):
+        with spinner(f'Writing segment {str(i+1)} of {str(final_story_count)}'):
+            podcast_segments.append(gen_podcast_segment(final_news[i], openai_api_key))
+    print(podcast_segments)
 
 
 

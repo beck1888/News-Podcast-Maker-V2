@@ -26,3 +26,22 @@ def was_scraped_successfully(scraped_data: str, api_key: str) -> bool:
     if 'true' in model_response:
         return True
     return False # Fallback
+
+def gen_podcast_segment(story: str, api_key: str) -> str:
+    client: OpenAI = OpenAI(api_key=api_key)
+
+    model_response: str = client.chat.completions.create(
+        model='gpt-4.1-nano',
+        messages=[
+            {
+                'role': 'system',
+                'content': get_prompt('rewrite_like_podcast')
+            },
+            {
+                'role': 'user',
+                'content': f'Here is the story: {story}'
+            }
+        ]
+    ).choices[0].message.content
+
+    return model_response
