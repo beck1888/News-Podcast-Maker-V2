@@ -1,6 +1,6 @@
 from apis.fetch_news import get_top_stories
 from apis.scrape import scrape_page
-from apis.text_gen import was_scraped_successfully, gen_podcast_segment
+from apis.text_gen import was_scraped_successfully, gen_podcast_segment, compile_podcast_script
 from tools.environment_manager import get_environmental_variable
 from tools.terminal import spinner
 
@@ -38,19 +38,17 @@ def main() -> None:
     final_story_count: int = len(final_news)
     print(f"[INFO] {str(final_story_count)} of 5 stories are avaliable.")
     
-    # Write stories like proper articles
+    # Write stories like proper articles segment-by-segment
     podcast_segments: list[str] = []
     for i in range(final_story_count):
         with spinner(f'Writing segment {str(i+1)} of {str(final_story_count)}'):
             podcast_segments.append(gen_podcast_segment(final_news[i], openai_api_key))
-    print(podcast_segments)
 
-
-
-
-
-
-
+    # Write final script
+    final_script: str = ""
+    with spinner('Writing final script'):
+        final_script = compile_podcast_script(podcast_segments, openai_api_key)
+    print(final_script)
 
 if __name__ == '__main__':
     main()
