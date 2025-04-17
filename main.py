@@ -74,8 +74,8 @@ def main() -> None:
     # Generate audio from the final script
     final_segments: list[str] = parse_script(final_script)
     audio_files: list[str] = []
-    for index, segment in enumerate(final_segments):
-        with spinner(f'Creating audio segment {str(index + 1)} of {len(final_segments)}'):
+    for index, segment in enumerate(final_segments, start=1): # Start at 1 for both cli readable index and proper voice selection
+        with spinner(f'Creating audio segment {str(index)} of {len(final_segments)}'):
             # Get voice based on paragrpah oddness
             if index % 2 == 1: # Coral is lead speaker and speaks on odd numbered paragrahs
                 use_voice = 'shimmer'
