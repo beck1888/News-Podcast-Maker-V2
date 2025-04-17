@@ -74,14 +74,13 @@ def main() -> None:
     # Generate audio from the final script
     final_segments: list[str] = parse_script(final_script)
     audio_files: list[str] = []
-    host_voice_names_in_api: list[str] = ['coral', 'onyx'] # Coral is Julia and reads odd paragraphs while Onyx is Knox in reads even paragraphs
     for index, segment in enumerate(final_segments):
         with spinner(f'Creating audio segment {str(index + 1)} of {len(final_segments)}'):
             # Get voice based on paragrpah oddness
-            if index % 2 == 1:
-                use_voice = 'coral'
+            if index % 2 == 1: # Coral is lead speaker and speaks on odd numbered paragrahs
+                use_voice = 'shimmer'
             else:
-                use_voice = 'onyx'
+                use_voice = 'ash'
             audio_files.append(gen_speech(segment, openai_api_key, voice=use_voice))
     # print(audio_files)
     
