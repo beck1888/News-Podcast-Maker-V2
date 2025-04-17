@@ -89,3 +89,9 @@ def compile_podcast_script(content: list[str], api_key: str) -> str:
     ).choices[0].message.content
 
     return model_response
+
+def parse_script(script: str) -> list[str]:
+    parts: list[str] = []
+    for chunk in script.split('\n\n'): # Split on new paragraph
+        parts.append(chunk)
+    return parts

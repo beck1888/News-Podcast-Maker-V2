@@ -1,6 +1,7 @@
 from apis.fetch_news import get_top_stories
 from apis.scrape import scrape_page
-from apis.text_gen import was_scraped_successfully, gen_podcast_segment, compile_podcast_script
+from apis.text_gen import was_scraped_successfully, gen_podcast_segment, compile_podcast_script, parse_script
+from apis.create_audio import gen_speech
 from tools.environment_manager import get_environmental_variable
 from tools.terminal import spinner
 
@@ -45,10 +46,17 @@ def main() -> None:
             podcast_segments.append(gen_podcast_segment(final_news[i], openai_api_key))
 
     # Write final script
-    final_script: str = ""
     with spinner('Writing final script'):
-        final_script = compile_podcast_script(podcast_segments, openai_api_key)
-    print(final_script)
+        final_script: str = compile_podcast_script(podcast_segments, openai_api_key)
+
+    # Generate audio from the final script
+    final_segments: list[str] = parse_script(final_script)
+    audio_files: list[str] = []
+    for index, segment in enumerate(final_segments):
+        with spinner(f'Creating audio segment {str(index + 1)} of {len(final_segments)}'):
+            audio_files.append(gen_speech(segment, openai_api_key))
+    print(audio_files)
+
 
 if __name__ == '__main__':
     main()
