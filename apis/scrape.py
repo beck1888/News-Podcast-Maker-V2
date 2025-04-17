@@ -22,8 +22,14 @@ def capture_fullpage_screenshot(url, screenshot_path="screenshot.png"):
             page.set_viewport_size({"width": page_width, "height": page_height})
             page.screenshot(path=screenshot_path)
         except TimeoutError:
+            # Try to screenshot whatever is currently loaded
+            try:
+                page.screenshot(path=screenshot_path)
+            except Exception:
+                browser.close()
+                return False
             browser.close()
-            return False
+            return True
         browser.close()
         return True
 
