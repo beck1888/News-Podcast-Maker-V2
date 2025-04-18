@@ -44,12 +44,15 @@ def scrape_page(url: str):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     screenshot_file = os.path.join(tmp_dir, f"screenshot_{timestamp}.png")
     # print(f"Screenshot saved to {screenshot_file}")
-    success = capture_fullpage_screenshot(url, screenshot_file)
-    if not success:
-        return "This story could not be loaded. Just announce the headline."
-    text = extract_text_from_image(screenshot_file)
-    # try:
-    #     os.remove(screenshot_file)
-    # except Exception as e:
-    #     print(f"Warning: could not delete screenshot file: {e}")
-    return text
+    try:
+        success = capture_fullpage_screenshot(url, screenshot_file)
+        if not success:
+            return "This story could not be loaded. Just announce the headline."
+        text = extract_text_from_image(screenshot_file)
+        # try:
+        #     os.remove(screenshot_file)
+        # except Exception as e:
+        #     print(f"Warning: could not delete screenshot file: {e}")
+        return text
+    except Exception:
+        return "Story failed to load."

@@ -9,17 +9,18 @@ from playsound import playsound
 from datetime import datetime
 import time
 import os
+import sys
 
 def main() -> None:
     # Await user input to start
-    do_music_while_gen: bool = input("Play music while podcast is generating? ") == 'y'
+    # do_music_while_gen: bool = input("Play music while podcast is generating? ") == 'y'
 
     # Track start time
     start = time.time()
 
-    # Play music while generating podcast
-    if do_music_while_gen:
-        playsound('public/gen_wait_music.mp3', block=False) # Do not hold program execution for music - it's backgroudn music for a reason
+    # # Play music while generating podcast
+    # if do_music_while_gen:
+    #     playsound('public/gen_wait_music.mp3', block=False) # Do not hold program execution for music - it's backgroudn music for a reason
 
     # Setup workspace
     with spinner('Setting up workspace'):
@@ -60,6 +61,11 @@ def main() -> None:
         # print(f"Scrape sucsess? {str(is_scrape_sucsessful)}")
     final_story_count: int = len(final_news)
     # print(f"[INFO] {str(final_story_count)} of 5 stories are avaliable.")
+
+    # Make sure there is at least one story
+    if len(final_news) == 0:
+        print('All stories failed to load. Try again later.')
+        sys.exit(1)
     
     # Write stories like proper articles segment-by-segment
     podcast_segments: list[str] = []
@@ -132,10 +138,16 @@ def main() -> None:
             elif os.path.isdir(file_path):
                 os.rmdir(file_path)
 
+    with spinner("Finishing up"):
+        TTS_API_COST_PER_THOUSAND_CHARS = 0.015  # Cost in USD
+        num_chars = len(final_script)
+        cost = (num_chars / 1000) * TTS_API_COST_PER_THOUSAND_CHARS
+
     end = time.time()
     elapsed_time = end - start
     minutes, seconds = divmod(round(elapsed_time), 60)
     print(f"  [INFO] Done. Elapsed time: {minutes} minutes and {seconds} seconds.")
+    print(f"  [INFO] Cost insight: Estimated cost of audio ${round(cost, 2)} (chat completions not factored in)")
     print(complete_message)
 
 if __name__ == '__main__':
